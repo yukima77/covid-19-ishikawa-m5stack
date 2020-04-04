@@ -1,0 +1,1 @@
+# covid-19-ishikawa-m5stack
