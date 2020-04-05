@@ -7,7 +7,8 @@ require_relative 'WebDriver.rb'
 
 ##### 変数定義
 ### URL
-url = "https://www.pref.ishikawa.lg.jp/kansen/coronakennai.html"
+URL = "https://www.pref.ishikawa.lg.jp/kansen/coronakennai.html"
+PREF="Ishikawa"
 ###
 num = 1
 person_num = 0
@@ -33,7 +34,7 @@ grep_array = [
 ###
 driver = WebDriver.new
 ###
-status = driver.get(url)
+status = driver.get(URL)
 html = driver.page_source
 doc = Nokogiri::HTML(html)
 ### 
@@ -91,6 +92,6 @@ hash["date"] = "#{year}/#{month}/#{day}"
 covid_hash["#{person_num}"] = hash
 ###
 covid_hash["last_access"] = Time.now
-covid_hash["pref"] = "Ishikawa"
+covid_hash["pref"] = PREF
 ### JSON出力
 p covid_hash.to_json
