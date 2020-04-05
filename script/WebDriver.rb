@@ -15,12 +15,13 @@ class WebDriver
   @@referer_url = ""
   @@retry_flag = nil
   @@page_data = nil
+  @@charset = nil
 
   ###
-  def initialize()
+  def initialize(env_fname="env.json")
     @@hash = Hash.new
-    if File.exist?("env.json") then
-      File.open("env.json","r") {|file|
+    if File.exist?(env_fname) then
+      File.open(env_fname,"r") {|file|
         @@hash = JSON.load(file)
       }
     else
