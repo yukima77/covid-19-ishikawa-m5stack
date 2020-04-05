@@ -8,6 +8,8 @@ const char* ssid     = "xxxxxxxx";       // 自宅のWiFi設定
 const char* password = "xxxxxxxx";
 // ★★★★★★★★★★★★★★★★★★★
 
+int preSum = 0;
+
 void setup() {
   M5.begin();
   M5.Lcd.setBrightness(192);
@@ -39,18 +41,50 @@ void loop() {
                 wd[tm->tm_wday],
                 tm->tm_hour, tm->tm_min, tm->tm_sec);
 
-  M5.Lcd.clear(BLACK);
+  // STAモードで接続出来ていない場合
+  if (WiFi.status() != WL_CONNECTED) {
+    M5.Lcd.clear(BLACK);
+    M5.Lcd.setCursor(0, 0);
+    M5.Lcd.setTextSize(2);
+    M5.Lcd.println("NOT CONNECTED WIFI.");
+    M5.Lcd.println("RETRYING NOW...");
+    wifiConnect();
+  }
 
-  M5.Lcd.setTextSize(3);
-  M5.Lcd.setCursor(0, 0);
-  M5.Lcd.println("COVID-19 ISHIKAWA");
-  
-  M5.Lcd.setTextSize(7);
-  M5.Lcd.setCursor(120, 100);
-  updateCovidData();
+  // WiFiに接続されている場合
+  if (WiFi.status() == WL_CONNECTED) {
+    int sum = getCovidData();
+    // 正しくデータが取得できたかどうか
+    if (sum > 0) {
+      // 感染者数に変化があったかどうか
+      if (sum != preSum) {
+        M5.Lcd.clear(BLACK);
+        M5.Lcd.setCursor(0, 5);
+        M5.Lcd.setTextSize(3);
+        M5.Lcd.println("COVID-19 ISHIKAWA");
+        M5.Lcd.setCursor(120, 100);
+        M5.Lcd.setTextSize(7);
+        M5.Lcd.println(String(sum));
+      }
+
+      // アップデート時刻の表示
+      String updateTime = String(tm->tm_mon + 1) + "/" + String(tm->tm_mday) + " "
+                          + String(tm->tm_hour) + ":" + String(tm->tm_min);
+      M5.Lcd.setCursor(20, 215);
+      M5.Lcd.setTextSize(2);
+      M5.Lcd.println("Updated: " + updateTime);
+
+      // 値を保持
+      preSum = sum;
+
+    } else {
+      // error
+    }
+  } else {
+  }
 
   // 時間待ち
-  delay(300000UL);  
+  delay(30000);
   M5.update();
 }
 
@@ -84,8 +118,9 @@ void wifiConnect() {
 }
 
 // コロナ情報のアップデート
-void updateCovidData(void) {
-  
+int getCovidData(void) {
+
+  int res;
   HTTPClient https;
 
   String url = "https://www.pref.ishikawa.lg.jp/kansen/coronakennai.html";
@@ -114,18 +149,23 @@ void updateCovidData(void) {
       }
 
       int num = payload.indexOf("感染者");
-      Serial.println(num);
+      //Serial.println(num);
 
       String garbageDays = {"\0"};
       garbageDays = payload.substring(num + 9, num + 11);
-      Serial.println(garbageDays);
-      M5.Lcd.println(garbageDays);
+      res = garbageDays.toInt();
+      Serial.println(res);
 
     } else {
       Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
+      res = -1;
     }
     https.end();
   } else {
     Serial.printf("[HTTPS] Unable to connect\n");
+    res = -1;
   }
+
+  return res;
+
 }
