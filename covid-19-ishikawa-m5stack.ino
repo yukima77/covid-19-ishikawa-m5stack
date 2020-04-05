@@ -39,18 +39,30 @@ void loop() {
                 wd[tm->tm_wday],
                 tm->tm_hour, tm->tm_min, tm->tm_sec);
 
-  M5.Lcd.clear(BLACK);
+  // STAモードで接続出来ていない場合
+  if (WiFi.status() != WL_CONNECTED) {
+    M5.Lcd.clear(BLACK);
+    M5.Lcd.setCursor(0, 0);
+    M5.Lcd.setTextSize(2);
+    M5.Lcd.println("NOT CONNECTED WIFI.");
+    M5.Lcd.println("RETRYING NOW...");
+    wifiConnect();
+  }
 
-  M5.Lcd.setTextSize(3);
-  M5.Lcd.setCursor(0, 0);
-  M5.Lcd.println("COVID-19 ISHIKAWA");
-  
-  M5.Lcd.setTextSize(7);
-  M5.Lcd.setCursor(120, 100);
-  updateCovidData();
+  // WiFiに接続されている場合
+  if (WiFi.status() == WL_CONNECTED) {
+    M5.Lcd.clear(BLACK);
+    M5.Lcd.setCursor(0, 0);
+    M5.Lcd.setTextSize(3);
+    M5.Lcd.println("COVID-19 ISHIKAWA");
+    M5.Lcd.setCursor(120, 100);
+    M5.Lcd.setTextSize(7);
+    updateCovidData();
+  } else {
+  }
 
   // 時間待ち
-  delay(300000UL);  
+  delay(30000);
   M5.update();
 }
 
