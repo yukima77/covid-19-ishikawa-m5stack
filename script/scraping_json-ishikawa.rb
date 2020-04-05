@@ -1,6 +1,7 @@
 #
 
 ### 
+require 'date'
 require 'json'
 require_relative 'WebDriver.rb'
 
@@ -88,6 +89,8 @@ hash["location"] = location
 hash["date"] = "#{year}/#{month}/#{day}"
 ###
 covid_hash["#{person_num}"] = hash
-
+###
+covid_hash["last_access"] = Time.now
+covid_hash["pref"] = "Ishikawa"
 ### JSON出力
 p covid_hash.to_json
