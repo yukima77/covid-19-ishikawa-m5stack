@@ -54,14 +54,18 @@ void loop() {
   // WiFiに接続されている場合
   if (WiFi.status() == WL_CONNECTED) {
     int sum = getCovidData();
+    // 正しくデータが取得できたかどうか
     if (sum > 0) {
-      M5.Lcd.clear(BLACK);
-      M5.Lcd.setCursor(0, 5);
-      M5.Lcd.setTextSize(3);
-      M5.Lcd.println("COVID-19 ISHIKAWA");
-      M5.Lcd.setCursor(120, 100);
-      M5.Lcd.setTextSize(7);
-      M5.Lcd.println(String(sum));
+      // 感染者数に変化があったかどうか
+      if (sum != preSum) {
+        M5.Lcd.clear(BLACK);
+        M5.Lcd.setCursor(0, 5);
+        M5.Lcd.setTextSize(3);
+        M5.Lcd.println("COVID-19 ISHIKAWA");
+        M5.Lcd.setCursor(120, 100);
+        M5.Lcd.setTextSize(7);
+        M5.Lcd.println(String(sum));
+      }
 
       // アップデート時刻の表示
       String updateTime = String(tm->tm_mon + 1) + "/" + String(tm->tm_mday) + " "
@@ -70,6 +74,7 @@ void loop() {
       M5.Lcd.setTextSize(2);
       M5.Lcd.println("Updated: " + updateTime);
 
+      // 値を保持
       preSum = sum;
 
     } else {
