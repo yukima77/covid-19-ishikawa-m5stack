@@ -8,6 +8,8 @@ const char* ssid     = "xxxxxxxx";       // 自宅のWiFi設定
 const char* password = "xxxxxxxx";
 // ★★★★★★★★★★★★★★★★★★★
 
+int preSum = 0;
+
 void setup() {
   M5.begin();
   M5.Lcd.setBrightness(192);
@@ -51,15 +53,25 @@ void loop() {
 
   // WiFiに接続されている場合
   if (WiFi.status() == WL_CONNECTED) {
-    int num = getCovidData();
-    if (num > 0) {
+    int sum = getCovidData();
+    if (sum > 0) {
       M5.Lcd.clear(BLACK);
-      M5.Lcd.setCursor(0, 0);
+      M5.Lcd.setCursor(0, 5);
       M5.Lcd.setTextSize(3);
       M5.Lcd.println("COVID-19 ISHIKAWA");
       M5.Lcd.setCursor(120, 100);
       M5.Lcd.setTextSize(7);
-      M5.Lcd.println(String(num));
+      M5.Lcd.println(String(sum));
+
+      // アップデート時刻の表示
+      String updateTime = String(tm->tm_mon + 1) + "/" + String(tm->tm_mday) + " "
+                          + String(tm->tm_hour) + ":" + String(tm->tm_min);
+      M5.Lcd.setCursor(20, 215);
+      M5.Lcd.setTextSize(2);
+      M5.Lcd.println("Updated: " + updateTime);
+
+      preSum = sum;
+
     } else {
       // error
     }
