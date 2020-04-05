@@ -51,13 +51,18 @@ void loop() {
 
   // WiFiに接続されている場合
   if (WiFi.status() == WL_CONNECTED) {
-    M5.Lcd.clear(BLACK);
-    M5.Lcd.setCursor(0, 0);
-    M5.Lcd.setTextSize(3);
-    M5.Lcd.println("COVID-19 ISHIKAWA");
-    M5.Lcd.setCursor(120, 100);
-    M5.Lcd.setTextSize(7);
-    updateCovidData();
+    int num = getCovidData();
+    if (num > 0) {
+      M5.Lcd.clear(BLACK);
+      M5.Lcd.setCursor(0, 0);
+      M5.Lcd.setTextSize(3);
+      M5.Lcd.println("COVID-19 ISHIKAWA");
+      M5.Lcd.setCursor(120, 100);
+      M5.Lcd.setTextSize(7);
+      M5.Lcd.println(String(num));
+    } else {
+      // error
+    }
   } else {
   }
 
@@ -96,8 +101,9 @@ void wifiConnect() {
 }
 
 // コロナ情報のアップデート
-void updateCovidData(void) {
-  
+int getCovidData(void) {
+
+  int res;
   HTTPClient https;
 
   String url = "https://www.pref.ishikawa.lg.jp/kansen/coronakennai.html";
@@ -126,18 +132,23 @@ void updateCovidData(void) {
       }
 
       int num = payload.indexOf("感染者");
-      Serial.println(num);
+      //Serial.println(num);
 
       String garbageDays = {"\0"};
       garbageDays = payload.substring(num + 9, num + 11);
-      Serial.println(garbageDays);
-      M5.Lcd.println(garbageDays);
+      res = garbageDays.toInt();
+      Serial.println(res);
 
     } else {
       Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
+      res = -1;
     }
     https.end();
   } else {
     Serial.printf("[HTTPS] Unable to connect\n");
+    res = -1;
   }
+
+  return res;
+
 }
