@@ -148,11 +148,11 @@ int getCovidData(void) {
         //Serial.println(payload);
       }
 
-      int num = payload.indexOf("感染者");
+      int num = payload.indexOf("&nbsp;感染者");
       //Serial.println(num);
 
       String garbageDays = {"\0"};
-      garbageDays = payload.substring(num + 9, num + 11);
+      garbageDays = payload.substring(num + 15, num + 17);
       res = garbageDays.toInt();
       Serial.println(res);
 
