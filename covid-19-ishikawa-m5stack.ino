@@ -18,6 +18,11 @@ void setup() {
   Serial.begin(115200);
   Serial.println("");
 
+  //
+  M5.Lcd.setCursor(0, 5);
+  M5.Lcd.setTextSize(2);
+  M5.Lcd.println("WIFI CONNECTING...");
+
   // WiFi接続
   wifiConnect();
   delay(1000);
