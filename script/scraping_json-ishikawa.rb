@@ -3,12 +3,15 @@
 ### 
 require 'date'
 require 'json'
+require 'octokit'
 require_relative 'WebDriver.rb'
 
 ##### 変数定義
 ### URL
 URL = "https://www.pref.ishikawa.lg.jp/kansen/coronakennai.html"
+REPO="yukima77/covid-19-ishikawa-m5stack"
 PREF="Ishikawa"
+token=ENV["TOKEN"]
 ###
 num = 1
 person_num = 0
@@ -32,7 +35,19 @@ grep_array = [
 ]
 
 ###
-driver = WebDriver.new
+driver = WebDriver.new("./env-ishikawa.json")
+client = Octokit::Client.new access_token: token
+
+###
+#GET /repos/:owner/:repo/contents/:path
+#s = client.get("/covid-19-ishikawa-m5stack/:yukima77/:repo/contents/:/data/ )
+#s = client.get("https://github.com/yukima77/covid-19-ishikawa-m5stack/blob/data/data/covid-19-ishikawa.json")
+#s = client.get("https://github.com/yukima77/covid-19-ishikawa-m5stack", branch:"data")
+
+#s = client.contents(REPO, :path => 'data/covid-19-ishikawa.json' )
+#s = client.get('/repos/yukima77/covid-19-ishikawa-m5stack.git/contents/data/covid-19-ishikawa.json', branch:"master")
+#s = client.get('/repos/yukima77/covid-19-ishikawa-m5stack.git/contents/README.md', branch:"master")
+
 ###
 status = driver.get(URL)
 html = driver.page_source
@@ -93,5 +108,10 @@ covid_hash["#{person_num}"] = hash
 ###
 covid_hash["last_access"] = Time.now
 covid_hash["pref"] = PREF
-### JSON出力
-p covid_hash.to_json
+### JSON出力 (不要だが出力しておく)
+File.open("../data/covid-19-ishikawa.json", "w") {|f| 
+  f.puts(covid_hash.to_json)
+}
+###
+result = client.contents(REPO, path: "data/covid-19-ishikawa.json", query: {ref: "data"})
+result = client.update_contents(REPO, "data/covid-19-ishikawa.json", "Updating content", result[:sha], covid_hash.to_json, :branch => "data", :file => "data/covid-19-ishikawa.json")
