@@ -1,5 +1,9 @@
 #!/bin/bash
 
+### 
+script_dir=$(cd $(dirname $0); pwd)
+cd $script_dir
+
 ###
 if [ -f ./.token.env ]; then
   source ./.token.env
