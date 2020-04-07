@@ -9,13 +9,13 @@ require_relative 'WebDriver.rb'
 ##### 変数定義
 ### URL & pref
 FORMAT_VERSION="1.0.0"
-URL = "https://www.pref.ishikawa.lg.jp/kansen/coronakennai.html"
+URL = "https://www.pref.fukui.lg.jp/doc/kenkou/kansensyo-yobousessyu/corona.html"
 REPO = "yukima77/covid-19-ishikawa-m5stack"
-PREF = "Ishikawa"
-JSON_FILE=  "data/covid-19-ishikawa.json"
+PREF = "Fukui"
+JSON_FILE=  "data/covid-19-fukui.json"
 token = ENV["TOKEN"]
 ###
-comment = "石川県版JSONファイル"
+comment = "福井県版JSONファイル"
 ###
 num = 1
 person_num = 0
@@ -50,52 +50,63 @@ grep_array = [
 ]
 
 ###
-driver = WebDriver.new("./env-ishikawa.json")
+driver = WebDriver.new("./env-fukui.json")
 client = Octokit::Client.new access_token: token
 ###
 status = driver.get(URL)
 html = driver.page_source
 doc = Nokogiri::HTML(html)
 ### 
-nodes = doc.xpath("//*[@id='tmp_contents']")
+nodes = doc.xpath("//*[@id='content']/div")
+
 ###
 nodes.each {|node|
-  node.xpath(".//h2|h3|p").each {|item|
+  node.xpath(".//tr").each {|item|
     str = "#{item.text}"
     grep_array.each {|g_array|
       str.gsub!(g_array[0],g_array[1])
     }
-    ### 確定日取得
-    if item.name == "h2" then
-      /令和(\d+)年(\d+)月(\d+)日/ =~ str
-      year = 2018 + $1.to_i
-      month = $2.to_i
-      day = $3.to_i
-    end
-    ### 事例数取得
-    if item.name == "h3" then
-      # データ確定
-      unless person_num == 0 then
-        hash = Hash.new
+    ### 行頭の改行コードを削除
+    str = str.gsub!(/^\r\n/,"")
+    str_array = str.split("\r\n")
+    ###
+    if str.include?("例目") then
+      person_num = str[/^(\d+)例目/,1] if item.text.include?("例目")
+      str_array.delete_at(0)
+      ###
+      if str.include?("令和") then
+        /令和(\d+)年(\d+)月(\d+)日/ =~ str_array[0]
+        year = 2018 + $1.to_i
+        month = $2.to_i
+        day = $3.to_i
         ###
-        hash["number"] = person_num
-        hash["ages"] = ages
-        hash["sex"] = sex
-        hash["location"] = location
-        hash["date"] = "#{year}/#{month}/#{day}"
-        ###
-        covid_hash["#{person_num}"] = hash
+        str_array.delete_at(0)
       end
-      person_num = str[/^(.*?)感染者(\d+)/,2] if item.name == "h3"
-    end
-    if item.name == "p" then
-      ages       = str[/^\((.*?)\)年代(\d+)代/,2] unless str[/^\((.*?)\)年代(\d+)代/].nil?
-      sex        = str[/^\((.*?)\)性別(.*?)性/,2]     unless str[/^\((.*?)\)性別(.*?)性/].nil?
-      job        = str[/^\(\d\)職業(.*?)/,2]            unless str[/^\(\d\)職業(.*?)/].nil?
-      #
-      /(^\((.*?)\)(居住地)(.*?))/ =~ str
-      s = $1
-      location   = str.gsub(s,'')          unless s.nil?
+      ### 年代
+      if str_array[0] =~ /\d\d/ then
+        ages = str_array[0]
+        str_array.delete_at(0)
+      end
+      ### 性別
+      if str_array[0] =~ /(.*?)性/ then
+        sex        = str_array[0][/(.*?)性/]
+        str_array.delete_at(0)
+      end
+      ### 居住地
+      if str_array[0] =~ /市|町/ then
+        location = str_array[0]
+        str_array.delete_at(0)
+      end
+      ###
+      hash = Hash.new
+      ###
+      hash["number"] = person_num
+      hash["ages"] = ages
+      hash["sex"] = sex
+      hash["location"] = location
+      hash["date"] = "#{year}/#{month}/#{day}"
+      ###
+      covid_hash["#{person_num}"] = hash
     end
   }
 }

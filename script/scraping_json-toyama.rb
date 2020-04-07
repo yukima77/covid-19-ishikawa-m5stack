@@ -8,8 +8,14 @@ require_relative 'WebDriver.rb'
 
 ##### 変数定義
 ### URL & pref
+FORMAT_VERSION="1.0.0"
 URL = "http://www.pref.toyama.jp/cms_sec/1205/kj00021798.html"
+REPO = "yukima77/covid-19-ishikawa-m5stack"
 PREF = "Toyama"
+JSON_FILE = "data/covid-19-toyama.json"
+token = ENV["TOKEN"]
+###
+comment = "富山県版JSONファイル"
 ###
 num = 1
 person_num = 0
@@ -29,6 +35,7 @@ grep_array = [
   [/ | |　/, ""],
   [/\( |（ /, "("],
   [/）/, ")"],
+  [/）/, ")"],
   [/（/, "("],
   [/０/,"0"],
   [/１/,"1"],
@@ -44,6 +51,7 @@ grep_array = [
 
 ###
 driver = WebDriver.new("./env-toyama.json")
+client = Octokit::Client.new access_token: token
 ###
 status = driver.get(URL)
 html = driver.page_source
@@ -111,5 +119,13 @@ covid_hash["#{person_num}"] = hash
 ###
 covid_hash["last_access"] = Time.now
 covid_hash["pref"] = PREF
-### JSON出力
-p covid_hash.to_json
+covid_hash["format-version"] = FORMAT_VERSION
+covid_hash["url"] = URL
+covid_hash["comment"] = comment
+### JSON出力 (不要だが出力しておく)
+File.open("../#{JSON_FILE}", "w") {|f| 
+  f.puts(covid_hash.to_json)
+}
+###
+result = client.contents(REPO, path: JSON_FILE, query: {ref: "data"})
+result = client.update_contents(REPO, JSON_FILE, "Updating content", result[:sha], covid_hash.to_json, :branch => "data", :file => JSON_FILE)
