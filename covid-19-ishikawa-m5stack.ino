@@ -6,6 +6,13 @@
 // ★★★★★設定項目★★★★★★★★★★
 const char* ssid     = "xxxxxxxx";       // 自宅のWiFi設定
 const char* password = "xxxxxxxx";
+
+//String displayName = "5670 Gadget  TOYAMA";
+//String url = "https://raw.githubusercontent.com/yukima77/covid-19-ishikawa-m5stack/data/data/covid-19-toyama.json";
+String displayName = "5670 Gadget  ISHIKAWA";
+String url = "https://raw.githubusercontent.com/yukima77/covid-19-ishikawa-m5stack/data/data/covid-19-ishikawa.json";
+//String displayName = "5670 Gadget  FUKUI";
+//String url = "https://raw.githubusercontent.com/yukima77/covid-19-ishikawa-m5stack/data/data/covid-19-fukui.json";
 // ★★★★★★★★★★★★★★★★★★★
 
 int preSum = 0;
@@ -65,8 +72,8 @@ void loop() {
       if (sum != preSum) {
         M5.Lcd.clear(BLACK);
         M5.Lcd.setCursor(0, 5);
-        M5.Lcd.setTextSize(3);
-        M5.Lcd.println("COVID-19 ISHIKAWA");
+        M5.Lcd.setTextSize(2);
+        M5.Lcd.println(displayName);
         M5.Lcd.setCursor(120, 100);
         M5.Lcd.setTextSize(7);
         M5.Lcd.println(String(sum));
@@ -153,11 +160,11 @@ int getCovidData(void) {
         //Serial.println(payload);
       }
 
-      int num = payload.indexOf("&nbsp;感染者");
+      int num = payload.indexOf("{\"");
       //Serial.println(num);
 
       String garbageDays = {"\0"};
-      garbageDays = payload.substring(num + 15, num + 17);
+      garbageDays = payload.substring(num + 2, num + 4);
       res = garbageDays.toInt();
       Serial.println(res);
 
