@@ -7,11 +7,15 @@ require 'octokit'
 require_relative 'WebDriver.rb'
 
 ##### 変数定義
-### URL
+### URL & pref
+FORMAT_VERSION="1.0.0"
 URL = "https://www.pref.ishikawa.lg.jp/kansen/coronakennai.html"
-REPO="yukima77/covid-19-ishikawa-m5stack"
-PREF="Ishikawa"
-token=ENV["TOKEN"]
+REPO = "yukima77/covid-19-ishikawa-m5stack"
+PREF = "Ishikawa"
+JSON_FILE=  "data/covid-19-ishikawa.json"
+token = ENV["TOKEN"]
+###
+comment = "石川県版JSONファイル"
 ###
 num = 1
 person_num = 0
@@ -28,26 +32,26 @@ covid_hash = Hash.new
 ###
 grep_array = [
   [/：/, ""],
-  [/ | /, ""],
+  [/ | |　/, ""],
   [/\( |（ /, "("],
   [/）/, ")"],
-  [/（/, "("]
+  [/）/, ")"],
+  [/（/, "("],
+  [/０/,"0"],
+  [/１/,"1"],
+  [/２/,"2"],
+  [/３/,"3"],
+  [/４/,"4"],
+  [/５/,"5"],
+  [/６/,"6"],
+  [/７/,"7"],
+  [/８/,"8"],
+  [/９/,"9"]
 ]
 
 ###
 driver = WebDriver.new("./env-ishikawa.json")
 client = Octokit::Client.new access_token: token
-
-###
-#GET /repos/:owner/:repo/contents/:path
-#s = client.get("/covid-19-ishikawa-m5stack/:yukima77/:repo/contents/:/data/ )
-#s = client.get("https://github.com/yukima77/covid-19-ishikawa-m5stack/blob/data/data/covid-19-ishikawa.json")
-#s = client.get("https://github.com/yukima77/covid-19-ishikawa-m5stack", branch:"data")
-
-#s = client.contents(REPO, :path => 'data/covid-19-ishikawa.json' )
-#s = client.get('/repos/yukima77/covid-19-ishikawa-m5stack.git/contents/data/covid-19-ishikawa.json', branch:"master")
-#s = client.get('/repos/yukima77/covid-19-ishikawa-m5stack.git/contents/README.md', branch:"master")
-
 ###
 status = driver.get(URL)
 html = driver.page_source
@@ -107,11 +111,13 @@ hash["date"] = "#{year}/#{month}/#{day}"
 covid_hash["#{person_num}"] = hash
 ###
 covid_hash["last_access"] = Time.now
-covid_hash["pref"] = PREF
+covid_hash["format-version"] = FORMAT_VERSION
+covid_hash["url"] = URL
+covid_hash["comment"] = comment
 ### JSON出力 (不要だが出力しておく)
-File.open("../data/covid-19-ishikawa.json", "w") {|f| 
+File.open("../#{JSON_FILE}", "w") {|f| 
   f.puts(covid_hash.to_json)
 }
 ###
-result = client.contents(REPO, path: "data/covid-19-ishikawa.json", query: {ref: "data"})
-result = client.update_contents(REPO, "data/covid-19-ishikawa.json", "Updating content", result[:sha], covid_hash.to_json, :branch => "data", :file => "data/covid-19-ishikawa.json")
+result = client.contents(REPO, path: JSON_FILE, query: {ref: "data"})
+result = client.update_contents(REPO, JSON_FILE, "Updating content", result[:sha], covid_hash.to_json, :branch => "data", :file => JSON_FILE)
