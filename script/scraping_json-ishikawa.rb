@@ -7,13 +7,16 @@ require 'octokit'
 require_relative 'WebDriver.rb'
 
 ##### 変数定義
-### URL & pref
-FORMAT_VERSION="1.0.0"
-URL = "https://www.pref.ishikawa.lg.jp/kansen/coronakennai.html"
+### 固定値
+token = ENV["TOKEN"]
 REPO = "yukima77/covid-19-ishikawa-m5stack"
+BRANCH = "data"
+FORMAT_VERSION="1.0.1"
+### URL & pref
+URL = "https://www.pref.ishikawa.lg.jp/kansen/coronakennai.html"
 PREF = "Ishikawa"
 JSON_FILE=  "data/covid-19-ishikawa.json"
-token = ENV["TOKEN"]
+ENV_FILE = "./env-ishikawa.json"
 ###
 comment = "石川県版JSONファイル"
 ###
@@ -50,7 +53,7 @@ grep_array = [
 ]
 
 ###
-driver = WebDriver.new("./env-ishikawa.json")
+driver = WebDriver.new(ENV_FILE)
 client = Octokit::Client.new access_token: token
 ###
 status = driver.get(URL)
@@ -110,14 +113,26 @@ hash["date"] = "#{year}/#{month}/#{day}"
 ###
 covid_hash["#{person_num}"] = hash
 ###
-covid_hash["last_access"] = Time.now
+last_access = Time.now
+covid_hash["last_access"] = last_access
+covid_hash["pref"] = PREF
 covid_hash["format-version"] = FORMAT_VERSION
 covid_hash["url"] = URL
 covid_hash["comment"] = comment
+###
+if person_num == 0 then
+  ### スクレーピング失敗
+  result = client.contents(REPO, :path => JSON_FILE, :ref => BRANCH)
+  contents = client.get(result[:download_url])
+  covid_hash = JSON.parse(contents).to_hash unless contents.nil?
+  covid_hash["status"] = "failed"
+else
+  covid_hash["status"] = "OK"
+end
 ### JSON出力 (不要だが出力しておく)
 File.open("../#{JSON_FILE}", "w") {|f| 
   f.puts(covid_hash.to_json)
 }
 ###
-result = client.contents(REPO, path: JSON_FILE, query: {ref: "data"})
-result = client.update_contents(REPO, JSON_FILE, "Updating content", result[:sha], covid_hash.to_json, :branch => "data", :file => JSON_FILE)
+result = client.contents(REPO, path: JSON_FILE, query: {ref: BRANCH})
+result = client.update_contents(REPO, JSON_FILE, "Updating content at #{last_access}", result[:sha], covid_hash.to_json, :branch => BRANCH, :file => JSON_FILE)
