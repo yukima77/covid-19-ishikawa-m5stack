@@ -7,13 +7,16 @@ require 'octokit'
 require_relative 'WebDriver.rb'
 
 ##### 変数定義
-### URL & pref
-FORMAT_VERSION="1.0.0"
-URL = "http://www.pref.toyama.jp/cms_sec/1205/kj00021798.html"
+### 固定値
+token = ENV["TOKEN"]
 REPO = "yukima77/covid-19-ishikawa-m5stack"
+BRANCH = "data"
+FORMAT_VERSION="1.0.1"
+### URL & pref
+URL = "http://www.pref.toyama.jp/cms_sec/1205/kj00021798.html"
 PREF = "Toyama"
 JSON_FILE = "data/covid-19-toyama.json"
-token = ENV["TOKEN"]
+ENV_FILE = "./env-toyama.json"
 ###
 comment = "富山県版JSONファイル"
 ###
@@ -32,7 +35,7 @@ covid_hash = Hash.new
 ###
 grep_array = [
   [/：/, ""],
-  [/ | |　/, ""],
+  [/ | |　|\t/, ""],
   [/\( |（ /, "("],
   [/）/, ")"],
   [/）/, ")"],
@@ -50,60 +53,61 @@ grep_array = [
 ]
 
 ###
-driver = WebDriver.new("./env-toyama.json")
+driver = WebDriver.new(ENV_FILE)
 client = Octokit::Client.new access_token: token
 ###
 status = driver.get(URL)
 html = driver.page_source
 doc = Nokogiri::HTML(html)
 ### 
-nodes = doc.xpath("//*[@id='main']")
+nodes = doc.xpath("//*[@id='page_list']")
 
 ###
 nodes.each {|node|
-  node.xpath(".//h4|p").each {|item|
+  node.xpath(".//tr").each {|item|
     str = "#{item.text}"
     grep_array.each {|g_array|
       str.gsub!(g_array[0],g_array[1])
     }
-    ### 確定日取得
-    if item.name == "h4" then
-      /令和(\d+)年(\d+)月(\d+)日/ =~ str
-      year = 2018 + $1.to_i
-      month = $2.to_i
-      day = $3.to_i
+    ### 行頭の改行コードを削除
+    str = str.gsub!(/^\n/,"")
+    str_array = str.split("\n")
+    ###
+    if str.include?("令和") or str.include?("月") or str.include?("〃") then
+      person_num = str_array[0]
+      str_array.delete_at(0)
+      ###
+      if str.include?("令和") then
+        /令和(\d+)年(\d+)月(\d+)日/ =~ str_array[0]
+        year = 2018 + $1.to_i
+        month = $2.to_i
+        day = $3.to_i
+      elsif str.include?("月") then
+        /(\d+)月(\d+)日/ =~ str_array[0]
+        month = $1.to_i
+        day = $2.to_i
+      end
+      str_array.delete_at(0)
+      ### 年代
+      ages = str_array[0]
+      str_array.delete_at(0)
+      ### 性別
+      sex = str_array[0]
+      str_array.delete_at(0)
+      ### 居住地
+      location = str_array[0]
+      str_array.delete_at(0)
+      ###
+      hash = Hash.new
+      ###
+      hash["number"] = person_num
+      hash["ages"] = ages
+      hash["sex"] = sex
+      hash["location"] = location
+      hash["date"] = "#{year}/#{month}/#{day}"
+      ###
+      covid_hash["#{person_num}"] = hash
     end
-    ### 事例数取得
-    if item.name == "p" then
-      item.children.each {|element|
-        str = element.text
-        grep_array.each {|g_array|
-          str.gsub!(g_array[0],g_array[1])
-        }
-        unless str[/^◎(\d+)例目/].nil?
-          # データ確定
-          unless person_num == 0 then
-            hash = Hash.new
-            ###
-            hash["number"] = person_num
-            hash["ages"] = ages
-            hash["sex"] = sex
-            hash["location"] = location
-            hash["date"] = "#{year}/#{month}/#{day}"
-            ###
-            covid_hash["#{person_num}"] = hash
-          end
-          person_num = str[/^◎(\d+)例目/,1]            unless str[/^◎(\d+)例目/].nil?
-        end
-        ages       = str[/^\((.*?)\)年代(\d+)歳代/,2] unless str[/^\((.*?)\)年代(\d+)歳代/].nil?
-        sex        = str[/^\((.*?)\)性別(.*?)性/,2]   unless str[/^\((.*?)\)性別(.*?)性/].nil?
-        job        = ""
-        #
-        /(^\((.*?)\)(居住地)(.*?))/ =~ str
-        s = $1
-        location   = str.gsub(s,'')          unless s.nil?
-      }
-   end
   }
 }
 ### Hash作成
@@ -117,15 +121,26 @@ hash["date"] = "#{year}/#{month}/#{day}"
 ###
 covid_hash["#{person_num}"] = hash
 ###
-covid_hash["last_access"] = Time.now
+last_access = Time.now
+covid_hash["last_access"] = last_access
 covid_hash["pref"] = PREF
 covid_hash["format-version"] = FORMAT_VERSION
 covid_hash["url"] = URL
 covid_hash["comment"] = comment
+###
+if person_num == 0 then
+  ### スクレーピング失敗
+  result = client.contents(REPO, :path => JSON_FILE, :ref => BRANCH)
+  contents = client.get(result[:download_url])
+  covid_hash = JSON.parse(contents).to_hash unless contents.nil?
+  covid_hash["status"] = "failed"
+else
+  covid_hash["status"] = "OK"
+end
 ### JSON出力 (不要だが出力しておく)
 File.open("../#{JSON_FILE}", "w") {|f| 
   f.puts(covid_hash.to_json)
 }
 ###
-result = client.contents(REPO, path: JSON_FILE, query: {ref: "data"})
-result = client.update_contents(REPO, JSON_FILE, "Updating content", result[:sha], covid_hash.to_json, :branch => "data", :file => JSON_FILE)
+result = client.contents(REPO, path: JSON_FILE, query: {ref: BRANCH})
+result = client.update_contents(REPO, JSON_FILE, "Updating content at #{last_access}", result[:sha], covid_hash.to_json, :branch => BRANCH, :file => JSON_FILE)
