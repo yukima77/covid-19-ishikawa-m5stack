@@ -1,6 +1,6 @@
 ---
-name: Question
-about: Question
+name: Proposal
+about: Proposal
 title: ''
 labels: ''
 assignees: ''
@@ -9,7 +9,7 @@ assignees: ''
 
 ## 概要
 
-## 詳細
+## 提案詳細
 
 ## 関連するissue
 
