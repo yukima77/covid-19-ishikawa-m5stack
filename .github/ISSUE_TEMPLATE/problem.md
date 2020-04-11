@@ -1,9 +1,9 @@
 ---
-name: 
-about: 問題
-title: 
-labels: 
-assignees: 
+name: Problem
+about: Problem
+title: ''
+labels: ''
+assignees: ''
 
 ---
 
