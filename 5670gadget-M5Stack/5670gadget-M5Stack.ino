@@ -135,7 +135,7 @@ int getCovidData(void) {
   int res;
   HTTPClient https;
 
-  String url = "https://www.pref.ishikawa.lg.jp/kansen/coronakennai.html";
+  //String url = "https://www.pref.ishikawa.lg.jp/kansen/coronakennai.html";
   Serial.print("connect url :");
   Serial.println(url);
 
