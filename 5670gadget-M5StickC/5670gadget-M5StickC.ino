@@ -157,11 +157,11 @@ int getCovidData(void) {
       if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
         payload = https.getString();
         Serial.println("HTTP_CODE_OK");
-        //Serial.println(payload);
+        Serial.println(payload);
       }
 
-      int num_start = payload.indexOf("[");
-      int num_end = payload.indexOf(",");
+      int num_start = payload.indexOf("\"");
+      int num_end = payload.indexOf("\":");
       //Serial.println(num_start);
       //Serial.println(num_end);
       
