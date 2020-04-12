@@ -160,11 +160,13 @@ int getCovidData(void) {
         //Serial.println(payload);
       }
 
-      int num = payload.indexOf("{\"");
-      //Serial.println(num);
-
+      int num_start = payload.indexOf("[");
+      int num_end = payload.indexOf(",");
+      //Serial.println(num_start);
+      //Serial.println(num_end);
+      
       String garbageDays = {"\0"};
-      garbageDays = payload.substring(num + 2, num + 4);
+      garbageDays = payload.substring(num_start + 1, num_end);
       res = garbageDays.toInt();
       Serial.println(res);
 
