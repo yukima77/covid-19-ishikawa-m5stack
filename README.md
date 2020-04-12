@@ -25,5 +25,16 @@ M5Stack/M5StickCを利用して、新型コロナウイルス感染症 (COVID-19
 石川県ホームページ
 https://www.pref.ishikawa.lg.jp/kansen/coronakennai.html
 
+富山県ホームページ
+http://www.pref.toyama.jp/cms_sec/1205/kj00021798.html
+
+福井県ホームページ (直リンクでのアクセス不可)
+https://www.pref.fukui.lg.jp/doc/kenkou/kansensyo-yobousessyu/corona.html
+
+
+# M5Stak をお持ちでない方
+
+[こちら](https://yukima77.github.io/covid-19-ishikawa-m5stack/)にて同様の情報を配信予定
+
 # License
 This software is released under the MIT License, see LICENSE.txt.
