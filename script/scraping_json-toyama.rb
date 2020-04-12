@@ -11,9 +11,10 @@ require_relative 'WebDriver.rb'
 token = ENV["TOKEN"]
 REPO = "yukima77/covid-19-ishikawa-m5stack"
 BRANCH = "data"
-FORMAT_VERSION="1.0.1"
+FORMAT_VERSION="1.0.2"
 ### URL & pref
 URL = "http://www.pref.toyama.jp/cms_sec/1205/kj00021798.html"
+REFERER = "http://www.pref.toyama.jp/cms_sec/1205/index.html"
 PREF = "Toyama"
 JSON_FILE = "data/covid-19-toyama.json"
 ENV_FILE = "./env-toyama.json"
@@ -26,6 +27,7 @@ ages = ""
 sex = ""
 location = ""
 job = ""
+condition = ""
 str = nil
 year = 0
 month = 0
@@ -56,7 +58,7 @@ grep_array = [
 driver = WebDriver.new(ENV_FILE)
 client = Octokit::Client.new access_token: token
 ###
-status = driver.get(URL)
+status = driver.get(URL, REFERER)
 html = driver.page_source
 doc = Nokogiri::HTML(html)
 ### 
@@ -105,8 +107,10 @@ nodes.each {|node|
       hash["sex"] = sex
       hash["location"] = location
       hash["date"] = "#{year}/#{month}/#{day}"
+      hash["job"] = job
+      hash["condition"] = condition
       ###
-      covid_hash["#{person_num}"] = hash
+      covid_hash[person_num.to_i] = hash
     end
   }
 }
@@ -118,8 +122,12 @@ hash["ages"] = ages
 hash["sex"] = sex
 hash["location"] = location
 hash["date"] = "#{year}/#{month}/#{day}"
+hash["job"] = job
+hash["condition"] = condition
 ###
-covid_hash["#{person_num}"] = hash
+covid_hash[person_num.to_i] = hash
+### ソート
+covid_hash = Hash[*covid_hash.sort.reverse]
 ###
 last_access = Time.now
 covid_hash["last_access"] = last_access

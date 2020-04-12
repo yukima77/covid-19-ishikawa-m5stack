@@ -4,6 +4,7 @@
 require 'date'
 require 'json'
 require 'octokit'
+require 'csv'
 require_relative 'WebDriver.rb'
 
 ##### 変数定義
@@ -13,8 +14,8 @@ REPO = "yukima77/covid-19-ishikawa-m5stack"
 BRANCH = "data"
 FORMAT_VERSION="1.0.2"
 ### URL & pref
-URL = "https://www.pref.fukui.lg.jp/doc/kenkou/kansensyo-yobousessyu/corona.html"
-REFERER = "https://www.pref.fukui.lg.jp/kenko/kenkou/cat0902/index.html"
+URL = "https://www.pref.fukui.lg.jp/doc/toukei-jouhou/covid-19_d/fil/covid19_patients.csv"
+REFERER = "https://www.pref.fukui.lg.jp/doc/toukei-jouhou/covid-19.html"
 PREF = "Fukui"
 JSON_FILE=  "data/covid-19-fukui.json"
 ENV_FILE = "./env-fukui.json"
@@ -37,7 +38,7 @@ covid_hash = Hash.new
 ###
 grep_array = [
   [/：/, ""],
-  [/ | |　|\t/, ""],
+  [/ | |　/, ""],
   [/\( |（ /, "("],
   [/）/, ")"],
   [/）/, ")"],
@@ -60,75 +61,64 @@ client = Octokit::Client.new access_token: token
 ###
 status = driver.get(URL, REFERER)
 html = driver.page_source
-doc = Nokogiri::HTML(html)
-### 
-nodes = doc.xpath("//*[@id='content']/div")
 
-###
-nodes.each {|node|
-  node.xpath(".//tr").each {|item|
-    str = "#{item.text}"
-    grep_array.each {|g_array|
-      str.gsub!(g_array[0],g_array[1])
-    }
-    ### 行頭の改行コードを削除
-    str = str.gsub!(/^\r\n/,"")
-    str_array = str.split("\r\n")
-    ###
-    if str.include?("例目") then
-      person_num = str[/^(\d+)例目/,1] if item.text.include?("例目")
-      str_array.delete_at(0)
-      ###
-      if str.include?("令和") then
-        /令和(\d+)年(\d+)月(\d+)日/ =~ str_array[0]
-        year = 2018 + $1.to_i
+lines = html.split("\r\n")
+
+#csv = CSV.new(html, headers: true, header_converters: :symbol, force_quotes: true)
+#rows = csv.to_a.map { |row| row.to_hash }
+
+lines.each {|line|
+  str_array = line.split(",")
+  unless str_array[0].include?("No") then
+    person_num = str_array[0].to_i.to_s unless str_array[0].nil? or str_array[0] == ""
+    str_array.delete_at(0)
+    ### 全国地方公共団体コード
+    str_array.delete_at(0)
+    ### 都道府県名
+    str_array.delete_at(0)
+    ### 市区町村名
+    str_array.delete_at(0)
+    unless str_array[0].nil? or str_array[0] == ""
+      ### 発表日
+      /(\d+)-(\d+)-(\d+)/ =~ str_array[0]
+        year = $1.to_i
         month = $2.to_i
         day = $3.to_i
-        ###
-        str_array.delete_at(0)
-      end
-      ### 年代
-      if str_array[0] =~ /\d\d/ then
-        ages = str_array[0]
-        str_array.delete_at(0)
-      end
-      ### 性別
-      if str_array[0] =~ /(.*?)性/ then
-        sex        = str_array[0][/(.*?)性/]
-        str_array.delete_at(0)
-      end
-      ### 居住地
-      if str_array[0] =~ /市|町/ then
-        location = str_array[0]
-        str_array.delete_at(0)
-      end
-      ###
-      hash = Hash.new
-      ###
-      hash["number"] = person_num
-      hash["ages"] = ages
-      hash["sex"] = sex
-      hash["location"] = location
-      hash["date"] = "#{year}/#{month}/#{day}"
-      hash["job"] = job
-      hash["condition"] = condition
-      ###
-      covid_hash[person_num.to_i] = hash
     end
-  }
+    str_array.delete_at(0)
+    ### 発症日
+    str_array.delete_at(0)
+    ### 居住地
+    location = ""
+    location = str_array[0]        if str_array[0] =~ /市|町/
+    str_array.delete_at(0)
+    ### 年代
+    ages = str_array[0][/(.*?)代/] if     str_array[0].include?("代")
+    ages = str_array[0]            unless str_array[0].include?("代")
+    str_array.delete_at(0)
+    ### 性別
+    sex = str_array[0][/(.*?)性/]  if str_array[0] =~ /(.*?)性/
+    str_array.delete_at(0)
+    ### 職業
+    job = str_array[0]
+    str_array.delete_at(0)
+    ### 状態
+    condition = str_array[0]
+    str_array.delete_at(0)
+    ###
+    hash = Hash.new
+    ###
+    hash["number"] = person_num
+    hash["ages"] = ages
+    hash["sex"] = sex
+    hash["location"] = location
+    hash["date"] = "#{year}/#{month}/#{day}"
+    hash["job"] = job
+    hash["condition"] = condition
+    ###
+    covid_hash[person_num.to_i] = hash
+  end
 }
-### Hash作成
-hash = Hash.new
-###
-hash["number"] = person_num
-hash["ages"] = ages
-hash["sex"] = sex
-hash["location"] = location
-hash["date"] = "#{year}/#{month}/#{day}"
-hash["job"] = job
-hash["condition"] = condition
-###
-covid_hash[person_num.to_i] = hash
 ### ソート
 covid_hash = Hash[*covid_hash.sort.reverse]
 ###
