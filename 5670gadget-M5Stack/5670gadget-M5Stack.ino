@@ -15,7 +15,7 @@ String url = "https://raw.githubusercontent.com/yukima77/covid-19-ishikawa-m5sta
 //String url = "https://raw.githubusercontent.com/yukima77/covid-19-ishikawa-m5stack/data/data/covid-19-fukui.json";
 // ★★★★★★★★★★★★★★★★★★★
 
-int preSum = 0;
+int preSum = -1;
 
 void setup() {
   M5.begin();
@@ -67,7 +67,7 @@ void loop() {
   if (WiFi.status() == WL_CONNECTED) {
     int sum = getCovidData();
     // 正しくデータが取得できたかどうか
-    if (sum > 0) {
+    if (sum >= 0) {
       // 感染者数に変化があったかどうか
       if (sum != preSum) {
         M5.Lcd.clear(BLACK);
