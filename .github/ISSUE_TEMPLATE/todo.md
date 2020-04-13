@@ -1,15 +1,15 @@
 ---
-name: 提案
-about: 提案内容
+name: ToDo
+about: ToDo内容を記述する
 title: ''
-labels: ''
+labels: 'ToDo'
 assignees: ''
 
 ---
 
 ## 概要
 
-## 提案詳細
+## ToDo詳細
 
 ## 関連するissue
 

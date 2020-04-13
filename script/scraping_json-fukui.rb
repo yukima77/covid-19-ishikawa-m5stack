@@ -130,7 +130,7 @@ hash["condition"] = condition
 ###
 covid_hash[person_num.to_i] = hash
 ### ソート
-covid_hash = Hash[*covid_hash.sort.reverse]
+covid_hash = covid_hash.sort.reverse.to_h
 ###
 last_access = Time.now
 covid_hash["last_access"] = last_access

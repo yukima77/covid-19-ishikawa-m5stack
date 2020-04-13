@@ -28,9 +28,11 @@ https://www.pref.ishikawa.lg.jp/kansen/coronakennai.html
 富山県ホームページ
 http://www.pref.toyama.jp/cms_sec/1205/kj00021798.html
 
-福井県ホームページ (直リンクでのアクセス不可)
+福井県ホームページ
 https://www.pref.fukui.lg.jp/doc/kenkou/kansensyo-yobousessyu/corona.html
 
+福井県オープンデータ
+https://www.pref.fukui.lg.jp/doc/toukei-jouhou/covid-19_d/fil/covid19_patients.csv
 
 # M5Stak をお持ちでない方
 

@@ -96,9 +96,10 @@ nodes.each {|node|
       person_num = str[/^(.*?)感染者(\d+)/,2] if item.name == "h3"
     end
     if item.name == "p" then
-      ages       = str[/^\((.*?)\)年代(\d+)代/,2] unless str[/^\((.*?)\)年代(\d+)代/].nil?
-      sex        = str[/^\((.*?)\)性別(.*?)性/,2]     unless str[/^\((.*?)\)性別(.*?)性/].nil?
-      job        = str[/^\(\d\)職業(.*?)/,2]            unless str[/^\(\d\)職業(.*?)/].nil?
+#      ages       = str[/^\((.*?)\)年代(\d+)代/,2]  unless str[/^\((.*?)\)年代(\d+)代/].nil?
+      ages       = str[/^\((.*?)\)年代:(\d+)代/,2] unless str[/^\((.*?)\)年代:(\d+)代/].nil?
+      sex        = str[/^\((.*?)\)性別(.*?)性/,2]  unless str[/^\((.*?)\)性別(.*?)性/].nil?
+      job        = str[/^\(\d\)職業(.*?)/,2]       unless str[/^\(\d\)職業(.*?)/].nil?
       #
       /(^\((.*?)\)(居住地)(.*?))/ =~ str
       s = $1
@@ -119,7 +120,7 @@ hash["condition"] = condition
 ###
 covid_hash[person_num.to_i] = hash
 ### ソート
-covid_hash = Hash[*covid_hash.sort.reverse]
+covid_hash = covid_hash.sort.reverse.to_h
 ###
 last_access = Time.now
 covid_hash["last_access"] = last_access

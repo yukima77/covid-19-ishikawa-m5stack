@@ -1,6 +1,6 @@
 ---
-name: ''
-about: 提案
+name: 回避策
+about: 不具合回避策について記述
 title: ''
 labels: ''
 assignees: ''
@@ -9,7 +9,7 @@ assignees: ''
 
 ## 概要
 
-## 提案詳細
+## 不具合回避詳細
 
 ## 関連するissue
 

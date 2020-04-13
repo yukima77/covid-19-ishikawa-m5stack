@@ -1,6 +1,3 @@
----
-name:
-about: draft PR
 
 ---
 ## 概要
