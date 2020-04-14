@@ -1,9 +1,9 @@
 ---
-name: 
-about: 問題
-title: 
-labels: 
-assignees: 
+name: Issue
+about: Issueを記述
+title: ''
+labels: ''
+assignees: ''
 
 ---
 

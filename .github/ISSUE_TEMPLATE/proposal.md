@@ -1,8 +1,8 @@
 ---
-name: Proposal
-about: Proposal
+name: 提案
+about: 提案内容を記述
 title: ''
-labels: ''
+labels: 'proposal'
 assignees: ''
 
 ---

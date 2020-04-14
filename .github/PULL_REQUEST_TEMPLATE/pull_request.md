@@ -1,13 +1,11 @@
----
-name:
-about: PR
+close #
 
----
-close 
 ---
 ## 概要
 
-## 詳細
+## PR詳細
+
+## 関連するissue
 
 ## 備考
 

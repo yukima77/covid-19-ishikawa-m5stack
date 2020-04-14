@@ -90,14 +90,14 @@ lines.each {|line|
     str_array.delete_at(0)
     ### 居住地
     location = ""
-    location = str_array[0]        if str_array[0] =~ /市|町/
+    location = str_array[0]          if str_array[0] =~ /市|町/
     str_array.delete_at(0)
     ### 年代
-    ages = str_array[0][/(.*?)代/] if     str_array[0].include?("代")
-    ages = str_array[0]            unless str_array[0].include?("代")
+    ages = str_array[0][/(.*?)代/,1] if     str_array[0].include?("代")
+    ages = str_array[0]              unless str_array[0].include?("代")
     str_array.delete_at(0)
     ### 性別
-    sex = str_array[0][/(.*?)性/]  if str_array[0] =~ /(.*?)性/
+    sex = str_array[0][/(.*?)性/,1]  if str_array[0] =~ /(.*?)性/
     str_array.delete_at(0)
     ### 職業
     job = str_array[0]
@@ -120,7 +120,7 @@ lines.each {|line|
   end
 }
 ### ソート
-covid_hash = Hash[*covid_hash.sort.reverse]
+covid_hash = covid_hash.sort.reverse.to_h
 ###
 last_access = Time.now
 covid_hash["last_access"] = last_access
