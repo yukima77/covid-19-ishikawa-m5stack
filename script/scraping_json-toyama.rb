@@ -127,7 +127,12 @@ hash["condition"] = condition
 ###
 covid_hash[person_num.to_i] = hash
 ### ソート
-covid_hash = Hash[*covid_hash.sort.reverse]
+tmp_covid_hash = covid_hash
+covid_hash = Hash.new
+###
+tmp_covid_hash.sort_by{|id, value| id.to_i }.reverse.each {|key, value|
+  covid_hash[key] = value
+}
 ###
 last_access = Time.now
 covid_hash["last_access"] = last_access
@@ -149,6 +154,8 @@ end
 File.open("../#{JSON_FILE}", "w") {|f| 
   f.puts(covid_hash.to_json)
 }
+###
+exit if ENV['DEBUG'] == "1"
 ###
 result = client.contents(REPO, path: JSON_FILE, query: {ref: BRANCH})
 result = client.update_contents(REPO, JSON_FILE, "Updating content at #{last_access}", result[:sha], covid_hash.to_json, :branch => BRANCH, :file => JSON_FILE)
