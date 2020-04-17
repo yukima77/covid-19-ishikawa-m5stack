@@ -1,6 +1,6 @@
 ---
-name:
-about: draft PR
+name: 'Draft Pull Request'
+about: 'Draft Pull Request'
 
 ---
 ## 概要

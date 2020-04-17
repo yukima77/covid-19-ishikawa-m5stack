@@ -1,6 +1,6 @@
 ---
-name:
-about: PR
+name: 'Pull Request'
+about: 'Pull Request'
 
 ---
 close 
