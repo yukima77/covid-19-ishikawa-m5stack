@@ -90,6 +90,7 @@ nodes.each {|node|
       ### 年代
       if str_array[0] =~ /\d\d/ then
         ages = str_array[0]
+        ages = str_array[0][/(.*?)代/] if str_array[0].include?("代")
         str_array.delete_at(0)
       end
       ### 性別
@@ -105,15 +106,15 @@ nodes.each {|node|
       ###
       hash = Hash.new
       ###
-      hash["number"] = person_num
-      hash["ages"] = ages
+      hash["number"] = person_num.to_s
+      hash["ages"] = ages.to_s
       hash["sex"] = sex
       hash["location"] = location
       hash["date"] = "#{year}/#{month}/#{day}"
       hash["job"] = job
       hash["condition"] = condition
       ###
-      covid_hash[person_num.to_i] = hash
+      covid_hash["#{person_num}"] = hash
     end
   }
 }
@@ -128,9 +129,9 @@ hash["date"] = "#{year}/#{month}/#{day}"
 hash["job"] = job
 hash["condition"] = condition
 ###
-covid_hash[person_num.to_i] = hash
+covid_hash["#{person_num}"] = hash
 ### ソート
-covid_hash = covid_hash.sort.reverse.to_h
+covid_hash = Hash[*covid_hash.sort.reverse]
 ###
 last_access = Time.now
 covid_hash["last_access"] = last_access
@@ -152,6 +153,8 @@ end
 File.open("../#{JSON_FILE}", "w") {|f| 
   f.puts(covid_hash.to_json)
 }
+###
+exit if ENV['DEBUG'] == "1"
 ###
 result = client.contents(REPO, path: JSON_FILE, query: {ref: BRANCH})
 result = client.update_contents(REPO, JSON_FILE, "Updating content at #{last_access}", result[:sha], covid_hash.to_json, :branch => BRANCH, :file => JSON_FILE)

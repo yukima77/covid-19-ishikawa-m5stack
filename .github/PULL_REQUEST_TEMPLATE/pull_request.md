@@ -1,5 +1,9 @@
-close #
+---
+name: 'Pull Request'
+about: 'Pull Request'
 
+---
+close 
 ---
 ## 概要
 
