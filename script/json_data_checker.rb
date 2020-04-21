@@ -30,6 +30,7 @@ pref_list.each {|pref|
   covid_hash.each {|key,hash|
     error_flag = true if hash["ages"] == ""
     error_flag = true if hash["sex"]  == ""
+    error_flag = true if hash["date"] == "0/0/0"
   }
   puts "Status : NG (#{fname})" if error_flag == true
   puts "Status : OK (#{fname})" if error_flag == false
