@@ -31,6 +31,10 @@ pref_list.each {|pref|
     error_flag = true if hash["ages"] == ""
     error_flag = true if hash["sex"]  == ""
     error_flag = true if hash["date"] == "0/0/0"
+    unless hash["number"].nil? then
+      error_flag = true if hash["date"].nil?
+      error_flag = true if hash["condition"].nil?
+    end
   }
   puts "Status : NG (#{fname})" if error_flag == true
   puts "Status : OK (#{fname})" if error_flag == false

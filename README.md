@@ -22,14 +22,17 @@ M5Stack/M5StickCを利用して、新型コロナウイルス感染症 (COVID-19
 1. 設定完了
 
 # データソース
-石川県ホームページ
+石川県web site
 https://www.pref.ishikawa.lg.jp/kansen/coronakennai.html
 
-富山県ホームページ
+富山県web site
 http://www.pref.toyama.jp/cms_sec/1205/kj00021798.html
 
-福井県ホームページ
+福井県web site
 https://www.pref.fukui.lg.jp/doc/kenkou/kansensyo-yobousessyu/corona.html
+
+富山県オープンデータ
+http://opendata.pref.toyama.jp/files/covid19/20200403/toyama_patients.csv
 
 福井県オープンデータ
 https://www.pref.fukui.lg.jp/doc/toukei-jouhou/covid-19_d/fil/covid19_patients.csv

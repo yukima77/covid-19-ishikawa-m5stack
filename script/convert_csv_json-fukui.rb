@@ -104,6 +104,7 @@ lines.each {|line|
     str_array.delete_at(0)
     ### 状態
     condition = str_array[0]
+    condition = ""           if condition.nil?
     str_array.delete_at(0)
     ###
     hash = Hash.new
