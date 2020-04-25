@@ -27,6 +27,8 @@ https://www.pref.ishikawa.lg.jp/kansen/coronakennai.html
 
 富山県web site
 http://www.pref.toyama.jp/cms_sec/1205/kj00021798.html
+富山県罹患者データ
+http://www.pref.toyama.jp/cms_pfile/00021798/01390407.xlsx
 
 福井県web site
 https://www.pref.fukui.lg.jp/doc/kenkou/kansensyo-yobousessyu/corona.html
