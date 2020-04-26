@@ -14,13 +14,13 @@ REPO = "yukima77/covid-19-ishikawa-m5stack"
 BRANCH = "data"
 FORMAT_VERSION="1.0.2"
 ### URL & pref
-URL = "https://www.pref.fukui.lg.jp/doc/toukei-jouhou/covid-19_d/fil/covid19_patients.csv"
-REFERER = "https://www.pref.fukui.lg.jp/doc/toukei-jouhou/covid-19.html"
-PREF = "Fukui"
-JSON_FILE=  "data/covid-19-fukui.json"
-ENV_FILE = "./env-fukui.json"
+URL = "http://opendata.pref.toyama.jp/files/covid19/20200403/toyama_patients.csv"
+REFERER = "http://opendata.pref.toyama.jp/dataset/covid19/resource/f3cd8c90-bf77-4072-96a3-96bd5942ff20"
+PREF = "Toyama"
+JSON_FILE=  "data/covid-19-toyama.json"
+ENV_FILE = "./env-toyama.json"
 ###
-comment = "福井県版JSONファイル"
+comment = "富山県版JSONファイル"
 ###
 num = 1
 person_num = 0
@@ -71,10 +71,6 @@ lines.each {|line|
   str_array = line.split(",")
   unless str_array[0].include?("No") then
     person_num = str_array[0].to_i.to_s unless str_array[0].nil? or str_array[0] == ""
-    str_array.delete_at(0)
-    ### 全国地方公共団体コード
-    str_array.delete_at(0)
-    ### 都道府県名
     str_array.delete_at(0)
     ### 市区町村名
     str_array.delete_at(0)

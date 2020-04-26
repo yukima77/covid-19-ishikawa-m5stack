@@ -40,6 +40,19 @@ class WebDriver
     return @@referer_url
   end
 
+  ### Get environment value
+  def get_env_value(key)
+    return @@hash[key]
+  end
+
+  ###
+  def download(url, ref_url="", prefix="")
+    status = self.get(url, ref_url)
+    File.open("#{prefix}#{File.basename(url)}", "w") {|f|
+      f.write(@@page_data)
+    }
+    return status
+  end
   ###
   def get(url, ref_url="")
     status = nil
@@ -47,10 +60,10 @@ class WebDriver
     @@referer_url = ref_url unless ref_url == ""
     charset = "utf-8"
     charset = @@hash["charset"] unless @@hash["charset"].nil?
-    open(URI.escape(url), "r:#{charset}", "User-Agent"=>@@hash["ua"], "Referer"=>@@referer_url, :redirect => true) do |f|
+    open(URI.escape(url), "r:#{charset}", "User-Agent"=>@@hash["ua"], "Referer"=>@@referer_url, :redirect => true) {|f|
       @@page_data = f.read
       status = f.status
-    end
+    }
     return status
   end
   def page_source()
