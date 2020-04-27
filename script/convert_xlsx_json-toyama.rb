@@ -60,7 +60,16 @@ grep_array = [
 driver = WebDriver.new(ENV_FILE)
 client = Octokit::Client.new access_token: token
 ###
-driver.download(URL, REFERER)
+doc = driver.get_parsed_content(REFERER)
+###
+url = ""
+doc.xpath("//*[@id='file']/ul/li").each {|item|
+  item.css("a").each {|anchor|
+    url = anchor[:href] if File.extname(anchor[:href]) == ".xlsx"
+  }
+}
+###
+driver.download(url, REFERER)
 xlsx = Roo::Spreadsheet.open(File.basename(URL))
 xlsx.each_row_streaming { |row|
   str_array = Array.new
@@ -127,7 +136,7 @@ last_access = Time.now
 covid_hash["last_access"] = last_access
 covid_hash["pref"] = PREF
 covid_hash["format-version"] = FORMAT_VERSION
-covid_hash["url"] = URL
+covid_hash["url"] = url
 covid_hash["comment"] = comment
 ###
 if person_num == 0 then
