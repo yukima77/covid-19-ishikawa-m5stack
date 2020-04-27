@@ -84,11 +84,18 @@ xlsx.each_row_streaming { |row|
     ### 市番号
     str_array.delete_at(0)
     ### 検査結果判明日
-    date_time = Time.parse('1899/12/30') + str_array[0].to_f * (60 * 60 * 24)
-    /(\d+)-(\d+)-(\d+)/ =~ date_time.strftime("%Y-%m-%d")
-    year = $1.to_i
-    month = $2.to_i
-    day = $3.to_i
+    if str_array[0].include?("R") then
+      /R(\d+).(\d+).(\d+)/ =~ str_array[0]
+      year = $1.to_i + 2018
+      month = $2.to_i
+      day = $3.to_i
+    else
+      date_time = Time.parse('1899/12/30') + str_array[0].to_f * (60 * 60 * 24) 
+      /(\d+)-(\d+)-(\d+)/ =~ date_time.strftime("%Y-%m-%d")
+      year = $1.to_i
+      month = $2.to_i
+      day = $3.to_i
+    end
     str_array.delete_at(0)
     ### 年代
     ages = str_array[0][/(.*?)代/,1] if     str_array[0].include?("代")
