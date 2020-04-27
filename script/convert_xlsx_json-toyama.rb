@@ -70,7 +70,7 @@ doc.xpath("//*[@id='file']/ul/li").each {|item|
 }
 ###
 driver.download(url, REFERER)
-xlsx = Roo::Spreadsheet.open(File.basename(URL))
+xlsx = Roo::Spreadsheet.open(File.basename(url))
 xlsx.each_row_streaming { |row|
   str_array = Array.new
   row.each { |item|
