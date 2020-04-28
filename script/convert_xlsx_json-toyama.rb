@@ -60,8 +60,17 @@ grep_array = [
 driver = WebDriver.new(ENV_FILE)
 client = Octokit::Client.new access_token: token
 ###
-driver.download(URL, REFERER)
-xlsx = Roo::Spreadsheet.open(File.basename(URL))
+doc = driver.get_parsed_content(REFERER)
+###
+url = ""
+doc.xpath("//*[@id='file']/ul/li").each {|item|
+  item.css("a").each {|anchor|
+    url = anchor[:href] if File.extname(anchor[:href]) == ".xlsx"
+  }
+}
+###
+driver.download(url, REFERER)
+xlsx = Roo::Spreadsheet.open(File.basename(url))
 xlsx.each_row_streaming { |row|
   str_array = Array.new
   row.each { |item|
@@ -75,11 +84,18 @@ xlsx.each_row_streaming { |row|
     ### 市番号
     str_array.delete_at(0)
     ### 検査結果判明日
-    date_time = Time.parse('1899/12/30') + str_array[0].to_f * (60 * 60 * 24)
-    /(\d+)-(\d+)-(\d+)/ =~ date_time.strftime("%Y-%m-%d")
-    year = $1.to_i
-    month = $2.to_i
-    day = $3.to_i
+    if str_array[0].include?("R") then
+      /R(\d+).(\d+).(\d+)/ =~ str_array[0]
+      year = $1.to_i + 2018
+      month = $2.to_i
+      day = $3.to_i
+    else
+      date_time = Time.parse('1899/12/30') + str_array[0].to_f * (60 * 60 * 24) 
+      /(\d+)-(\d+)-(\d+)/ =~ date_time.strftime("%Y-%m-%d")
+      year = $1.to_i
+      month = $2.to_i
+      day = $3.to_i
+    end
     str_array.delete_at(0)
     ### 年代
     ages = str_array[0][/(.*?)代/,1] if     str_array[0].include?("代")
@@ -127,7 +143,7 @@ last_access = Time.now
 covid_hash["last_access"] = last_access
 covid_hash["pref"] = PREF
 covid_hash["format-version"] = FORMAT_VERSION
-covid_hash["url"] = URL
+covid_hash["url"] = url
 covid_hash["comment"] = comment
 ###
 if person_num == 0 then

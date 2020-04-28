@@ -69,6 +69,12 @@ class WebDriver
   def page_source()
     return @@page_data
   end
+  def get_parsed_content(url, ref_url="")
+    get(url, ref_url)
+    html = page_source
+    return Nokogiri::HTML(html) unless html.nil?
+    return nil                  if     html.nil?
+  end
   def quit()
   end
 end
