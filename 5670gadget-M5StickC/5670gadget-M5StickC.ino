@@ -60,6 +60,7 @@ void loop() {
     M5.Lcd.setTextSize(1);
     M5.Lcd.println("NOT CONNECTED WIFI.");
     M5.Lcd.println("RETRYING NOW...");
+    wifiDisconnect();
     wifiConnect();
   }
 
@@ -91,6 +92,8 @@ void loop() {
 
     } else {
       // error
+      // Connection refuseが発生している可能性があり、一旦、WiFiの接続からやり直す
+      wifiDisconnect();
     }
   } else {
   }
@@ -127,6 +130,11 @@ void wifiConnect() {
     Serial.println("Failed, Wifi connecting error");
   }
 
+}
+
+void wifiDisconnect() {
+  Serial.println("Disconnecting WiFi...");
+  WiFi.disconnect(true); // disconnect & WiFi power off
 }
 
 // コロナ情報のアップデート
