@@ -18,4 +18,4 @@ cd ${script_dir}
 export PATH="$HOME/.rbenv/bin:$PATH"
 eval "$(rbenv init -)"
 ###
-bash convert_csv_json-${pref}.sh
+bash convert_xlsx_json-${pref}.sh
