@@ -93,7 +93,9 @@ void loop() {
     } else {
       // error
       // Connection refuseが発生している可能性があり、一旦、WiFiの接続からやり直す
-      wifiDisconnect();
+      // WiFiを接続し直しても解決しない為、リセット処理
+      //wifiDisconnect();
+      esp_restart();
     }
   } else {
   }
