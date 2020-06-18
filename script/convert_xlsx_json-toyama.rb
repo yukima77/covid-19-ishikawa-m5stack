@@ -90,8 +90,13 @@ xlsx.each_row_streaming { |row|
       month = $2.to_i
       day = $3.to_i
     else
-      date_time = Time.parse('1899/12/30') + str_array[0].to_f * (60 * 60 * 24) 
-      /(\d+)-(\d+)-(\d+)/ =~ date_time.strftime("%Y-%m-%d")
+      if /(\d+)-(\d+)-(\d+)/ =~ str_array[0] then
+        regexp_str = str_array[0]
+      else
+        date_time = Time.parse('1899/12/30') + str_array[0].to_f * (60 * 60 * 24) 
+        regexp_str = date_time.strftime("%Y-%m-%d")
+      end
+      /(\d+)-(\d+)-(\d+)/ =~ regexp_str
       year = $1.to_i
       month = $2.to_i
       day = $3.to_i
