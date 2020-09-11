@@ -80,7 +80,7 @@ lines.each {|line|
     str_array.delete_at(0)
     unless str_array[0].nil? or str_array[0] == ""
       ### 発表日
-      /(\d+)-(\d+)-(\d+)/ =~ str_array[0]
+      /(\d+)\/(\d+)\/(\d+)/ =~ str_array[0]
         year = $1.to_i
         month = $2.to_i
         day = $3.to_i
